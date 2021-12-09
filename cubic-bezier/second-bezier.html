@@ -32,10 +32,12 @@
       // function to update line points from anchors
       function updateDottedLines() {
         const q = quad;
+        const q2 = quad2;
 
-        const quadLinePath = layer.findOne('#quadLinePath');
+        const quadLinePath1 = layer.findOne('#quadLinePath1');
+        const quadLinePath2 = layer.findOne('#quadLinePath2');
 
-        quadLinePath.points([
+        quadLinePath1.points([
           q.start.x(),
           q.start.y(),
           q.control.x(),
@@ -55,6 +57,13 @@
           x: q.end.x(),
           y: q.end.y(),
         });
+
+        quadLinePath2.points([
+          q2.controlT1.x(),
+          q2.controlT1.y(),
+          q2.controlT2.x(),
+          q2.controlT2.y(),
+        ]);
       }
 
       // we will use custom shape for curve
@@ -73,18 +82,29 @@
           ctx.fillStrokeShape(shape);
         },
       });
-      layer.add(quadraticLine);
+      // layer.add(quadraticLine);
 
-      const quadLinePath = new Konva.Line({
+      const quadLinePath1 = new Konva.Line({
         dash: [10, 10, 0, 10],
         strokeWidth: 3,
         stroke: 'black',
         lineCap: 'round',
-        id: 'quadLinePath',
+        id: 'quadLinePath1',
         opacity: 0.3,
         points: [0, 0],
       });
-      layer.add(quadLinePath);
+      layer.add(quadLinePath1);
+
+      const quadLinePath2 = new Konva.Line({
+        dash: [10, 10, 0, 10],
+        strokeWidth: 3,
+        stroke: 'black',
+        lineCap: 'round',
+        id: 'quadLinePath2',
+        opacity: 0.3,
+        points: [0, 0],
+      });
+      layer.add(quadLinePath2);
 
       // special objects to save references to anchors
       const [start, startText] = buildAnchor(93, 275, 'p0');
@@ -101,6 +121,13 @@
 
       const [controlT1, controlT1Text] = buildAnchor((93 + 203) / 2, (275 + 162) / 2, 'p01');
       const [controlT2, controlT2Text] = buildAnchor((415 + 203) / 2, (281 + 162) / 2, 'p12');
+
+      const quad2 = {
+        controlT1,
+        controlT1Text,
+        controlT2,
+        controlT2Text,
+      }
 
       updateDottedLines();
     </script>
