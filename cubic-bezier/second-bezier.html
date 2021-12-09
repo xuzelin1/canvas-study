@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/konva@8.3.0/konva.min.js"></script>
+    <script src="./build-anchor.js"></script>
+    <meta charset="utf-8" />
+    <title>Konva Modify Curves with Anchor Points Demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script>
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      const stage = new Konva.Stage({
+        container: 'container',
+        width: width,
+        height: height,
+      });
+
+      const layer = new Konva.Layer();
+      stage.add(layer);
+
+      // function to update line points from anchors
+      function updateDottedLines() {
+        const q = quad;
+
+        const quadLinePath = layer.findOne('#quadLinePath');
+
+        quadLinePath.points([
+          q.start.x(),
+          q.start.y(),
+          q.control.x(),
+          q.control.y(),
+          q.end.x(),
+          q.end.y(),
+        ]);
+        q.startText.setAttrs({
+          x: q.start.x(),
+          y: q.start.y(),
+        });
+        q.controlText.setAttrs({
+          x: q.control.x(),
+          y: q.control.y(),
+        });
+        q.endText.setAttrs({
+          x: q.end.x(),
+          y: q.end.y(),
+        });
+      }
+
+      // we will use custom shape for curve
+      const quadraticLine = new Konva.Shape({
+        stroke: 'red',
+        strokeWidth: 4,
+        sceneFunc: (ctx, shape) => {
+          ctx.beginPath();
+          ctx.moveTo(quad.start.x(), quad.start.y());
+          ctx.quadraticCurveTo(
+            quad.control.x(),
+            quad.control.y(),
+            quad.end.x(),
+            quad.end.y()
+          );
+          ctx.fillStrokeShape(shape);
+        },
+      });
+      layer.add(quadraticLine);
+
+      const quadLinePath = new Konva.Line({
+        dash: [10, 10, 0, 10],
+        strokeWidth: 3,
+        stroke: 'black',
+        lineCap: 'round',
+        id: 'quadLinePath',
+        opacity: 0.3,
+        points: [0, 0],
+      });
+      layer.add(quadLinePath);
+
+      // special objects to save references to anchors
+      const [start, startText] = buildAnchor(93, 275, 'p0');
+      const [control, controlText] = buildAnchor(203, 162, 'p1');
+      const [end, endText] = buildAnchor(415, 281, 'p2');
+      const quad = {
+        start,
+        control,
+        end,
+        startText,
+        controlText,
+        endText,
+      };
+
+      const [controlT1, controlT1Text] = buildAnchor((93 + 203) / 2, (275 + 162) / 2, 'p01');
+      const [controlT2, controlT2Text] = buildAnchor((415 + 203) / 2, (281 + 162) / 2, 'p12');
+
+      updateDottedLines();
+    </script>
+  </body>
+</html>

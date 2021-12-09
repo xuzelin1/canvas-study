@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/konva@8.3.0/konva.min.js"></script>
+    <script src="./build-anchor.js"></script>
+    <meta charset="utf-8" />
+    <title>Konva Modify Curves with Anchor Points Demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script>
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      const stage = new Konva.Stage({
+        container: 'container',
+        width: width,
+        height: height,
+      });
+
+      const layer = new Konva.Layer();
+      stage.add(layer);
+
+      // function to update line points from anchors
+      function updateDottedLines() {
+        const l = lineC;
+
+        const linePath = layer.findOne('#linePath');
+
+        l.lineStartT.setAttrs({
+          x: l.lineStart.x(),
+          y: l.lineStart.y(),
+        });
+        l.lineEndT.setAttrs({
+          x: l.lineEnd.x(),
+          y: l.lineEnd.y(),
+        });
+      }
+
+      const straightLine = new Konva.Shape({
+        stroke: 'green',
+        strokeWidth: 4,
+        sceneFunc: (ctx, shape) => {
+          ctx.beginPath();
+          ctx.moveTo(lineC.lineStart.x(), lineC.lineStart.y());
+          ctx.quadraticCurveTo(
+            lineC.lineStart.x(),
+            lineC.lineStart.y(),
+            lineC.lineEnd.x(),
+            lineC.lineEnd.y()
+          );
+          ctx.fillStrokeShape(shape);
+        },
+      });
+      layer.add(straightLine);
+
+      const linePath = new Konva.Line({
+        dash: [10, 10, 0, 10],
+        strokeWidth: 3,
+        stroke: 'black',
+        lineCap: 'round',
+        id: 'linePath',
+        opacity: 0.3,
+        points: [0, 0],
+      });
+      layer.add(linePath);
+
+      const [lineStart, lineStartT] = buildAnchor(108, 445, 'p0');
+      const [lineEnd, lineEndT] = buildAnchor(287, 408, 'p1');
+      const lineC = {
+        lineStart,
+        lineStartT,
+        lineEnd,
+        lineEndT,
+      }
+
+      updateDottedLines();
+    </script>
+  </body>
+</html>

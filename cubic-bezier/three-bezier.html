@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/konva@8.3.0/konva.min.js"></script>
+    <script src="./build-anchor.js"></script>
+    <meta charset="utf-8" />
+    <title>Konva Modify Curves with Anchor Points Demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script>
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      const stage = new Konva.Stage({
+        container: 'container',
+        width: width,
+        height: height,
+      });
+
+      const layer = new Konva.Layer();
+      stage.add(layer);
+
+      // function to update line points from anchors
+      function updateDottedLines() {
+        const b = bezier;
+        const quadLinePath = layer.findOne('#quadLinePath');
+
+        bezierLinePath.points([
+          b.bezierStart.x(),
+          b.bezierStart.y(),
+          b.bezierControl1.x(),
+          b.bezierControl1.y(),
+          b.bezierControl2.x(),
+          b.bezierControl2.y(),
+          b.bezierEnd.x(),
+          b.bezierEnd.y(),
+        ]);
+
+        b.bezierStartT.setAttrs({
+          x: b.bezierStart.x(),
+          y: b.bezierStart.y(),
+        });
+        b.bezierControl1T.setAttrs({
+          x: b.bezierControl1.x(),
+          y: b.bezierControl1.y(),
+        });
+        b.bezierControl2T.setAttrs({
+          x: b.bezierControl2.x(),
+          y: b.bezierControl2.y(),
+        });
+        b.bezierEndT.setAttrs({
+          x: b.bezierEnd.x(),
+          y: b.bezierEnd.y(),
+        });
+      }
+
+      // we will use custom shape for curve
+      const bezierLine = new Konva.Shape({
+        stroke: 'blue',
+        strokeWidth: 5,
+        sceneFunc: (ctx, shape) => {
+          ctx.beginPath();
+          ctx.moveTo(bezier.bezierStart.x(), bezier.bezierStart.y());
+          ctx.bezierCurveTo(
+            bezier.bezierControl1.x(),
+            bezier.bezierControl1.y(),
+            bezier.bezierControl2.x(),
+            bezier.bezierControl2.y(),
+            bezier.bezierEnd.x(),
+            bezier.bezierEnd.y()
+          );
+          ctx.fillStrokeShape(shape);
+        },
+      });
+      layer.add(bezierLine);
+
+      const bezierLinePath = new Konva.Line({
+        dash: [10, 10, 0, 10],
+        strokeWidth: 3,
+        stroke: 'black',
+        lineCap: 'round',
+        id: 'bezierLinePath',
+        opacity: 0.3,
+        points: [0, 0],
+      });
+      layer.add(bezierLinePath);
+
+      const [bezierStart, bezierStartT] = buildAnchor(628, 469, 'p0');
+      const [bezierControl1, bezierControl1T] = buildAnchor(595, 272, 'p1');
+      const [bezierControl2, bezierControl2T] = buildAnchor(853, 269, 'p2');
+      const [bezierEnd, bezierEndT] = buildAnchor(1068, 480, 'p3');
+
+      const bezier = {
+        bezierStart,
+        bezierControl1,
+        bezierControl2,
+        bezierEnd,
+        bezierStartT,
+        bezierControl1T,
+        bezierControl2T,
+        bezierEndT,
+      };
+
+      updateDottedLines();
+    </script>
+  </body>
+</html>
