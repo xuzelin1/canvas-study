@@ -16,9 +16,16 @@
   </head>
   <body>
     <div id="container"></div>
+    <div style="position: absolute; top: 0">
+      <input type="range" min="0" max="100" value="30" class="slider" id="myRange">
+      <span id="range-value">0.3</span>
+    </div>
     <script>
       const width = window.innerWidth;
       const height = window.innerHeight;
+
+      let rangeValue1 = 0.7;
+      let rangeValue2 = 0.3;
 
       const stage = new Konva.Stage({
         container: 'container',
@@ -33,10 +40,12 @@
       function updateDottedLines() {
         const q = quad;
         const q2 = quad2;
+        const f = final;
 
         const quadLinePath1 = layer.findOne('#quadLinePath1');
         const quadLinePath2 = layer.findOne('#quadLinePath2');
 
+        // 初始化最初三个点的控制处理
         quadLinePath1.points([
           q.start.x(),
           q.start.y(),
@@ -58,12 +67,38 @@
           y: q.end.y(),
         });
 
+        // 初始化辅助线控制处理
         quadLinePath2.points([
           q2.controlT1.x(),
           q2.controlT1.y(),
           q2.controlT2.x(),
           q2.controlT2.y(),
         ]);
+        q2.controlT1.setAttrs({
+          x: q.start.x() * rangeValue1 + q.control.x() * rangeValue2,
+          y: q.start.y() * rangeValue1 + q.control.y() * rangeValue2,
+        })
+        q2.controlT1Text.setAttrs({
+          x: q2.controlT1.x(),
+          y: q2.controlT1.y(),
+        })
+        q2.controlT2.setAttrs({
+          x: q.control.x() * rangeValue1 + q.end.x() * rangeValue2,
+          y: q.control.y() * rangeValue1 + q.end.y() * rangeValue2,
+        })
+        q2.controlT2Text.setAttrs({
+          x: q2.controlT2.x(),
+          y: q2.controlT2.y(),
+        })
+
+        f.point.setAttrs({
+          x: q2.controlT1.x() * rangeValue1 + q2.controlT2.x() * rangeValue2,
+          y: q2.controlT1.y() * rangeValue1 + q2.controlT2.y() * rangeValue2,
+        })
+        f.pointText.setAttrs({
+          x: f.point.x(),
+          y: f.point.y(),
+        })
       }
 
       // we will use custom shape for curve
@@ -82,7 +117,6 @@
           ctx.fillStrokeShape(shape);
         },
       });
-      // layer.add(quadraticLine);
 
       const quadLinePath1 = new Konva.Line({
         dash: [10, 10, 0, 10],
@@ -119,8 +153,12 @@
         endText,
       };
 
-      const [controlT1, controlT1Text] = buildAnchor((93 + 203) / 2, (275 + 162) / 2, 'p01');
-      const [controlT2, controlT2Text] = buildAnchor((415 + 203) / 2, (281 + 162) / 2, 'p12');
+      const controlT1X = 93 * rangeValue1 + 203 * rangeValue2;
+      const controlT1Y = 275 * rangeValue1 + 162 * rangeValue2;
+      const [controlT1, controlT1Text] = buildAnchor(controlT1X, controlT1Y, 'p01');
+      const controlT2X = 203 * rangeValue1 + 415 * rangeValue2;
+      const controlT2Y = 162 * rangeValue1 + 281 * rangeValue2;
+      const [controlT2, controlT2Text] = buildAnchor(controlT2X, controlT2Y, 'p12');
 
       const quad2 = {
         controlT1,
@@ -129,7 +167,32 @@
         controlT2Text,
       }
 
+      const pointX = controlT1X * rangeValue1 + controlT2X * rangeValue2;
+      const pointY = controlT1Y * rangeValue1 + controlT2Y * rangeValue2;
+      const [point, pointText] = buildAnchor(pointX, pointY, 'p');
+      const final = {
+        point,
+        pointText,
+      }
+
       updateDottedLines();
+
+      const slider = document.getElementById("myRange");
+      const output = document.getElementById("range-value");
+      output.innerHTML = slider.value / 100; // Display the default slider value
+
+      // Update the current slider value (each time you drag the slider handle)
+      slider.oninput = function() {
+        const value = this.value / 100;
+        output.innerHTML = value;
+        rangeValue2 = value;
+        rangeValue1 = 1 - value;
+        updateDottedLines();
+
+        if (value === 1) {
+          layer.add(quadraticLine);
+        }
+      }
     </script>
   </body>
 </html>
