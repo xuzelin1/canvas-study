@@ -12,13 +12,20 @@
         overflow: hidden;
         background-color: #f0f0f0;
       }
+      #cubic-bezier {
+        position: absolute;
+        top: 0
+      }
     </style>
   </head>
   <body>
     <div id="container"></div>
+    <span id="cubic-bezier"></span>
     <script>
       const width = window.innerWidth;
       const height = window.innerHeight;
+
+      const cubicBezier = document.getElementById("cubic-bezier");
 
       const stage = new Konva.Stage({
         container: 'container',
@@ -30,15 +37,26 @@
       stage.add(layer);
 
       // function to update line points from anchors
-      function updateDottedLines() {
+      function updateDottedLines(e) {
         const b = bezier;
         const quadLinePath = layer.findOne('#quadLinePath');
 
-        bezierLinePath.points([
+        bezierLinePath1.points([
           b.bezierStart.x(),
           b.bezierStart.y(),
           b.bezierControl1.x(),
           b.bezierControl1.y(),
+          // b.bezierControl2.x(),
+          // b.bezierControl2.y(),
+          // b.bezierEnd.x(),
+          // b.bezierEnd.y(),
+        ]);
+
+        bezierLinePath2.points([
+          // b.bezierStart.x(),
+          // b.bezierStart.y(),
+          // b.bezierControl1.x(),
+          // b.bezierControl1.y(),
           b.bezierControl2.x(),
           b.bezierControl2.y(),
           b.bezierEnd.x(),
@@ -61,6 +79,13 @@
           x: b.bezierEnd.x(),
           y: b.bezierEnd.y(),
         });
+
+        cubicBezier.innerHTML = `cubic-bezier(
+          ${((b.bezierControl1.x() - 100) / 200).toFixed(2)},
+          ${((-b.bezierControl1.y() + 300) / 200).toFixed(2)},
+          ${((b.bezierControl2.x() - 100) / 200).toFixed(2)},
+          ${((-b.bezierControl2.y() + 300) / 200).toFixed(2)}
+        )`
       }
 
       // we will use custom shape for curve
@@ -83,21 +108,77 @@
       });
       layer.add(bezierLine);
 
-      const bezierLinePath = new Konva.Line({
+      const bezierLinePath1 = new Konva.Line({
         dash: [10, 10, 0, 10],
         strokeWidth: 3,
         stroke: 'black',
         lineCap: 'round',
-        id: 'bezierLinePath',
+        id: 'bezierLinePath1',
         opacity: 0.3,
         points: [0, 0],
       });
-      layer.add(bezierLinePath);
+      layer.add(bezierLinePath1);
+      const bezierLinePath2 = new Konva.Line({
+        dash: [10, 10, 0, 10],
+        strokeWidth: 3,
+        stroke: 'black',
+        lineCap: 'round',
+        id: 'bezierLinePath2',
+        opacity: 0.3,
+        points: [0, 0],
+      });
+      layer.add(bezierLinePath2);
 
-      const [bezierStart, bezierStartT] = buildAnchor(628, 469, 'p0');
-      const [bezierControl1, bezierControl1T] = buildAnchor(595, 272, 'p1');
-      const [bezierControl2, bezierControl2T] = buildAnchor(853, 269, 'p2');
-      const [bezierEnd, bezierEndT] = buildAnchor(1068, 480, 'p3');
+      const coordinate = new Konva.Line({
+        // dash: [10, 10, 0, 10],
+        strokeWidth: 3,
+        stroke: 'red',
+        // lineCap: 'round',
+        id: 'coordinate',
+        // opacity: 0.3,
+        points: [0, 0],
+      });
+      layer.add(coordinate);
+      coordinate.points([
+        100, 100,
+        100, 300,
+        300, 300,
+      ]);
+      const xText = new Konva.Text({
+        x: 310,
+        y: 290,
+        text: 'X',
+        fontSize: 16,
+        fontFamily: 'Calibri',
+        fill: 'black',
+      });
+      layer.add(xText);
+      const yText = new Konva.Text({
+        x: 95,
+        y: 80,
+        text: 'Y',
+        fontSize: 16,
+        fontFamily: 'Calibri',
+        fill: 'black',
+      });
+      layer.add(yText);
+
+      const [bezierStart, bezierStartT] = buildAnchor(100, 300, 'p0');
+      const [bezierControl1, bezierControl1T] = buildAnchor(100, 100, 'p1');
+      const [bezierControl2, bezierControl2T] = buildAnchor(300, 300, 'p2');
+      const [bezierEnd, bezierEndT] = buildAnchor(300, 100, 'p3');
+
+      bezierStart.setAttr('draggable', false);
+      bezierEnd.setAttr('draggable', false);
+
+      bezierControl1.on('dragmove', function (e) {
+        axisControl(e, bezierControl1);
+        updateDottedLines();
+      });
+      bezierControl2.on('dragmove', function (e) {
+        axisControl(e, bezierControl2);
+        updateDottedLines();
+      });
 
       const bezier = {
         bezierStart,
@@ -109,6 +190,23 @@
         bezierControl2T,
         bezierEndT,
       };
+
+      function axisControl(e, target) {
+        const { x, y } = e.evt;
+
+        if (x < 100) {
+          target.setAttr('x', 100);
+        }
+        if (x > 300) {
+          target.setAttr('x', 300);
+        }
+        // if (y < 100) {
+        //   target.setAttr('y', 100);
+        // }
+        // if (y > 300) {
+        //   target.setAttr('y', 300);
+        // }
+      }
 
       updateDottedLines();
     </script>
