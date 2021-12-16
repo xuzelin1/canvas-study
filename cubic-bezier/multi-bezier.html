@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/konva@8.3.0/konva.min.js"></script>
+    <script src="./build-anchor.js"></script>
+    <meta charset="utf-8" />
+    <title>Konva Modify Curves with Anchor Points Demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script>
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      const stage = new Konva.Stage({
+        container: 'container',
+        width: width,
+        height: height,
+      });
+
+      const layer = new Konva.Layer();
+      stage.add(layer);
+
+      // function to update line points from anchors
+      function updateDottedLines() {
+        const m = multi;
+
+        const linePath = layer.findOne('#linePath');
+        linePath.points([
+          m.point0.x(),
+          m.point0.y(),
+          m.point1.x(),
+          m.point1.y(),
+          m.point2.x(),
+          m.point2.y(),
+          m.point3.x(),
+          m.point3.y(),
+          m.point4.x(),
+          m.point4.y(),
+          m.point5.x(),
+          m.point5.y(),
+          m.point6.x(),
+          m.point6.y(),
+          m.point7.x(),
+          m.point7.y(),
+          m.point8.x(),
+          m.point8.y(),
+          m.point9.x(),
+          m.point9.y(),
+          m.point10.x(),
+          m.point10.y(),
+          m.point11.x(),
+          m.point11.y(),
+        ]);
+      }
+
+      const multiLine1 = new Konva.Shape({
+        stroke: 'green',
+        strokeWidth: 4,
+        sceneFunc: (ctx, shape) => {
+          ctx.beginPath();
+          ctx.moveTo(multi.point0.x(), multi.point0.y());
+          ctx.bezierCurveTo(
+            multi.point1.x(),
+            multi.point1.y(),
+            multi.point2.x(),
+            multi.point2.y(),
+            multi.point3.x(),
+            multi.point3.y(),
+          );
+          ctx.fillStrokeShape(shape);
+        },
+      });
+      const multiLine2 = new Konva.Shape({
+        stroke: 'green',
+        strokeWidth: 4,
+        sceneFunc: (ctx, shape) => {
+          ctx.beginPath();
+          ctx.moveTo(multi.point3.x(), multi.point3.y());
+          ctx.bezierCurveTo(
+            multi.point4.x(),
+            multi.point4.y(),
+            multi.point5.x(),
+            multi.point5.y(),
+            multi.point6.x(),
+            multi.point6.y(),
+          );
+          ctx.fillStrokeShape(shape);
+        },
+      });
+      const multiLine3 = new Konva.Shape({
+        stroke: 'green',
+        strokeWidth: 4,
+        sceneFunc: (ctx, shape) => {
+          ctx.beginPath();
+          ctx.moveTo(multi.point6.x(), multi.point6.y());
+          ctx.bezierCurveTo(
+            multi.point7.x(),
+            multi.point7.y(),
+            multi.point8.x(),
+            multi.point8.y(),
+            multi.point9.x(),
+            multi.point9.y(),
+          );
+          ctx.fillStrokeShape(shape);
+        },
+      });
+      const multiLine4 = new Konva.Shape({
+        stroke: 'green',
+        strokeWidth: 4,
+        sceneFunc: (ctx, shape) => {
+          ctx.beginPath();
+          ctx.moveTo(multi.point9.x(), multi.point9.y());
+          ctx.quadraticCurveTo(
+            multi.point10.x(),
+            multi.point10.y(),
+            multi.point11.x(),
+            multi.point11.y(),
+          );
+          ctx.fillStrokeShape(shape);
+        },
+      });
+      layer.add(multiLine1);
+      layer.add(multiLine2);
+      layer.add(multiLine3);
+      layer.add(multiLine4);
+
+      const linePath = new Konva.Line({
+        dash: [10, 10, 0, 10],
+        strokeWidth: 3,
+        stroke: 'black',
+        lineCap: 'round',
+        id: 'linePath',
+        opacity: 0.3,
+        points: [0, 0],
+      });
+      layer.add(linePath);
+      
+      const [point0] = buildAnchor(15, 532, '');
+      const [point1] = buildAnchor(58, 484, '');
+      const [point2] = buildAnchor(82, 553, '');
+      const [point3] = buildAnchor(174, 514, '');
+      const [point4] = buildAnchor(100, 418, '');
+      const [point5] = buildAnchor(190, 352, '');
+      const [point6] = buildAnchor(280, 434, '');
+      const [point7] = buildAnchor(358, 350, '');
+      const [point8] = buildAnchor(284, 288, '');
+      const [point9] = buildAnchor(455, 283, '');
+      const [point10] = buildAnchor(467, 177, '');
+      const [point11] = buildAnchor(557, 257, '');
+      
+      const multi = {
+        point0,
+        point1,
+        point2,
+        point3,
+        point4,
+        point5,
+        point6,
+        point7,
+        point8,
+        point9,
+        point10,
+        point11,
+      }
+      updateDottedLines();
+    </script>
+  </body>
+</html>
