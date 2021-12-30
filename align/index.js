@@ -1,9 +1,14 @@
 let xMap = {};
 let yMap = {};
 
+let hMap = {};
+let vMap = {};
+
 let topLine = new Konva.Shape({})
 let bottomLine = new Konva.Shape({})
 const lineGroup = new Konva.Group({});
+
+const SNAP_OFFSET = 5;
 
 function initData(stage, target) {
   xMap = {};
@@ -34,6 +39,20 @@ function initData(stage, target) {
         x2,
         y2,
       });
+
+      if (i === Math.ceil((x1 + x2) / 2)) {
+        for(let j = i - SNAP_OFFSET; j <= i + SNAP_OFFSET; j++) {
+          vMap[j] = {
+            id,
+            x1,
+            y1,
+            width,
+            height,
+            x2,
+            y2,
+          };
+        }
+      }
     }
 
     for(let i = y1; i <= y2; i++) {
@@ -49,6 +68,20 @@ function initData(stage, target) {
         x2,
         y2,
       });
+
+      if (i === Math.ceil((y1 + y2) / 2)) {
+        for(let j = i - SNAP_OFFSET; j <= i + SNAP_OFFSET; j++) {
+          hMap[j] = {
+            id,
+            x1,
+            y1,
+            width,
+            height,
+            x2,
+            y2,
+          };
+        }
+      }
     }
   });
 }
@@ -59,10 +92,13 @@ function initDrag(stage, layer) {
   });
   layer.on('dragmove', (e) => {
     const target = e.target;
-    const { x, y, width, height } = target.attrs;
-    const centerX = Math.round(x + width / 2);
-    const centerY = Math.round(y + height / 2);
+    let { x, y, width, height } = target.attrs;
+    let centerX = Math.round(x + width / 2);
+    let centerY = Math.round(y + height / 2);
 
+    /**
+     * 获取上下左右的图形
+     */
     const [top, bottom] = calculateX({
       y1: y,
       x1: x,
@@ -71,7 +107,6 @@ function initDrag(stage, layer) {
       x2: x + width,
       y2: y + height,
     });
-
     const [left, right] = calculateY({
       y1: y,
       x1: x,
@@ -81,6 +116,25 @@ function initDrag(stage, layer) {
       y2: y + height,
     });
 
+    const absPos = target.absolutePosition();
+    const vertical = vMap[centerX];
+    const horizontal = hMap[centerY];
+    if (vertical) {
+      const centerVerticalX = vertical.x1 + vertical.width / 2;
+      absPos.x = centerVerticalX - width / 2;
+    }
+    if (horizontal) {
+      const centerHorizontalY = horizontal.y1 + horizontal.height / 2;
+      absPos.y = centerHorizontalY - height / 2;
+    }
+    target.absolutePosition(absPos);
+
+    x = target.attrs.x;
+    y = target.attrs.y;
+    centerX = Math.round(x + width / 2);
+    centerY = Math.round(y + height / 2);
+
+    // 绘制与上图形的距离和线
     const topLine = new Konva.Shape({
       sceneFunc: function (ctx) {
         ctx.moveTo(centerX, y);
@@ -88,7 +142,7 @@ function initDrag(stage, layer) {
         ctx.strokeShape(this);
       },
       stroke: 'black',
-      strokeWidth: 0.5,
+      strokeWidth: 0.1,
       id: 'topLine',
     })
     const topDistance = new Konva.Text({
@@ -99,6 +153,7 @@ function initDrag(stage, layer) {
       align: 'center',
     });
     
+    // 绘制与下图形的距离和线
     const bottomLine = new Konva.Shape({
       sceneFunc: function (ctx) {
         ctx.moveTo(centerX, y + height);
@@ -106,7 +161,7 @@ function initDrag(stage, layer) {
         ctx.strokeShape(this);
       },
       stroke: 'black',
-      strokeWidth: 0.5,
+      strokeWidth: 0.1,
       id: 'bottomLine',
     })
     const bottomDistance = new Konva.Text({
@@ -117,6 +172,7 @@ function initDrag(stage, layer) {
       align: 'center',
     });
     
+    // 绘制与左图形的距离和线
     const leftLine = new Konva.Shape({
       sceneFunc: function (ctx) {
         ctx.moveTo(x, centerY);
@@ -124,7 +180,7 @@ function initDrag(stage, layer) {
         ctx.strokeShape(this);
       },
       stroke: 'black',
-      strokeWidth: 0.5,
+      strokeWidth: 0.1,
       id: 'leftLine',
     })
     const leftDistance = new Konva.Text({
@@ -135,6 +191,7 @@ function initDrag(stage, layer) {
       align: 'center',
     });
     
+    // 绘制与右图形的距离和线
     const rightLine = new Konva.Shape({
       sceneFunc: function (ctx) {
         ctx.moveTo(x + width, centerY);
@@ -142,7 +199,7 @@ function initDrag(stage, layer) {
         ctx.strokeShape(this);
       },
       stroke: 'black',
-      strokeWidth: 0.5,
+      strokeWidth: 0.1,
       id: 'rightLine',
     })
     const rightDistance = new Konva.Text({

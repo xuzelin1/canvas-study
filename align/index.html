@@ -63,8 +63,13 @@
 
       const randX = Math.round(Math.random() * stage.width());
       const randY = Math.round(Math.random() * stage.height());
-      const width = Math.round(Math.random() * 150 + 100);
-      const height = Math.round(Math.random() * 50 + 50);
+      // const width = Math.round(Math.random() * 150 + 100);
+      // const height = Math.round(Math.random() * 50 + 50);
+
+      // const randX = colorIndex % 2 === 0 ? 100 : 300;
+      // const randY = colorIndex
+      const width = 150;
+      const height = 50;
       const rect = new Konva.Rect({
         x: randX,
         y: randY,
@@ -84,16 +89,26 @@
         color: 'white',
       })
 
+      const circle = new Konva.Circle({
+        fill: 'black',
+        radius: 1,
+        x: randX + width / 2,
+        y: randY + height / 2,
+      })
+
       rect.on('dragmove', (e) => {
-        console.log(e);
-        const { x, y } = e.target.attrs;
+        const { x, y, width, height } = e.target.attrs;
         label.setAttrs({
           x,
           y,
         })
+        circle.setAttrs({
+          x: x + width / 2,
+          y: y + height / 2,
+        })
       })
 
-      layer.add(rect, label);
+      layer.add(rect, label, circle);
     }
 
   </script>
