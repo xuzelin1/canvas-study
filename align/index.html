@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/konva@8.3.0/konva.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #f0f0f0;
+    }
+  </style>
+  </head>
+<body>
+  <div id="container"></div>
+  <script src="./index.js"></script>
+  <script>
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const stage = new Konva.Stage({
+      container: 'container',
+      width,
+      height,
+    })
+
+    const layer = new Konva.Layer();
+    stage.add(layer);
+
+    const colorsMap = [
+      'red',
+      'orange',
+      'yellow',
+      'green',
+      'blue',
+      'cyan',
+      'purple',
+    ];
+
+    initRect();
+    initData(stage, layer);
+    initDrag(stage, layer);
+
+
+    /** 
+     * 初始化
+     */
+    function initRect() {
+      for(let i = 0; i < 15; i++) {
+        addRect(i);
+      }
+    }
+    
+    /** 
+     * 添加一个随机的 Rect
+     */
+    function addRect(colorIndex) {
+      const color = colorsMap[colorIndex % colorsMap.length];
+
+      const randX = Math.round(Math.random() * stage.width());
+      const randY = Math.round(Math.random() * stage.height());
+      const width = Math.round(Math.random() * 150 + 100);
+      const height = Math.round(Math.random() * 50 + 50);
+      const rect = new Konva.Rect({
+        x: randX,
+        y: randY,
+        width,
+        height,
+        radius: 2,
+        fill: color,
+        draggable: true,
+        id: `rect-${colorIndex}`,
+        name: 'rect',
+      });
+
+      const label = new Konva.Text({
+        x: randX,
+        y: randY,
+        text: `rect-${colorIndex}`,
+        color: 'white',
+      })
+
+      rect.on('dragmove', (e) => {
+        console.log(e);
+        const { x, y } = e.target.attrs;
+        label.setAttrs({
+          x,
+          y,
+        })
+      })
+
+      layer.add(rect, label);
+    }
+
+  </script>
+</body>
+</html>
