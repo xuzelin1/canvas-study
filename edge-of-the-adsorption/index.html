@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/konva@8.3.1/konva.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <button style="position: absolute; top: 0;" onclick="addDoor()">Door</button>
+  <!-- <script src="./stats.js"></script> -->
+  <script src="./index.js"></script>
+  
+  <script>
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    // const stats = new Stats();
+    // document.body.appendChild( stats.dom );
+
+    const stage = new Konva.Stage({
+      container: 'container',
+      width,
+      height,
+    });
+
+    const layer = new Konva.Layer();
+    stage.add(layer);
+
+    // 渲染墙
+    renderWallLine();
+    // 初始化数据
+    initData(stage, layer);
+
+    function renderWallLine() {
+      let points = [];
+      let startX = Math.random() * width;
+      let startY = Math.random() * height;
+      let endX = Math.random() * width;
+      let endY = Math.random() * height;
+      for(let i = 0; i < 7; i++) {
+
+        points = [startX, startY, endX, endY];
+        console.log(points);
+
+        const wallLine = new Konva.Line({
+          points,
+          stroke: 'red',
+          strokeWidth: 15,
+          lineCap: 'round',
+          lineJoin: 'round',
+          name: 'wall-line'
+        });
+  
+        layer.add(wallLine);
+        startX = endX;
+        startY = endY;
+
+        endX = Math.random() * width;
+        endY = Math.random() * height;
+      }
+    }
+
+    function addDoor() {
+      const door = new Konva.Rect({
+        width: 90,
+        height: 30,
+        x: 100,
+        y: 100,
+        rotation: 0,
+        draggable: true,
+        fill: 'white',
+        stroke: '#6397f8',
+      })
+
+      layer.add(door);
+      initDrag(door);
+    }
+  </script>
+</body>
+</html>
