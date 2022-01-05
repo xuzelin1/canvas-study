@@ -38,20 +38,41 @@
 
     // 渲染墙
     renderWallLine();
-    // 初始化数据
-    initData(stage, layer);
 
     function renderWallLine() {
-      let points = [];
+      // 修改线段数量
+      const lineLen = 7;
+      // 控制点数组
+      const controlPointArr = [];
       let startX = Math.random() * width;
       let startY = Math.random() * height;
       let endX = Math.random() * width;
       let endY = Math.random() * height;
-      for(let i = 0; i < 7; i++) {
 
-        points = [startX, startY, endX, endY];
-        console.log(points);
+      // 开始控制点，相当于链表的第一个
+      let controlStart = new Konva.Circle({
+        x: startX,
+        y: startY,
+        fill: 'black',
+        radius: 10,
+        draggable: true,
+      });
+      controlPointArr.push(controlStart);
 
+      // 生成多条线段和控制点
+      for(let i = 0; i < lineLen; i++) {
+        let controlEnd = new Konva.Circle({
+          x: endX,
+          y: endY,
+          fill: 'black',
+          radius: 10,
+          draggable: true,
+        });
+        controlPointArr.push(controlEnd);
+
+        const points = [controlStart.x(), controlStart.y(), controlEnd.x(), controlEnd.y()];
+
+        // 绘制墙线段
         const wallLine = new Konva.Line({
           points,
           stroke: 'red',
@@ -60,16 +81,39 @@
           lineJoin: 'round',
           name: 'wall-line'
         });
+
+        // 保存控制点和拖动事件
+        const p = controlStart;
+        const q = controlEnd;
+        controlStart.on('dragmove', () => {
+          updateLine(wallLine, p, q)
+        });
+        controlEnd.on('dragmove', () => {
+          updateLine(wallLine, p, q)
+        });
   
         layer.add(wallLine);
         startX = endX;
         startY = endY;
 
+        controlStart = controlEnd;
+
         endX = Math.random() * width;
         endY = Math.random() * height;
       }
+
+      // layer 添加控制点
+      controlPointArr[lineLen].fill('green');
+      layer.add(...controlPointArr);
     }
 
+    // 更新墙
+    function updateLine(line, obj1, obj2) {
+      line.points([obj1.x(), obj1.y(), obj2.x(), obj2.y()]);
+      layer.batchDraw();
+    }
+
+    // 点击添加门
     function addDoor() {
       const door = new Konva.Rect({
         width: 90,
@@ -80,7 +124,11 @@
         draggable: true,
         fill: 'white',
         stroke: '#6397f8',
+        id: new Date().getTime(),
       })
+
+      // 初始化数据
+      initData(stage, layer);
 
       layer.add(door);
       initDrag(door);
