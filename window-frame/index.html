@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/konva@8.3.1/konva.min.js"></script>
+  <title>Document</title>
+</head>
+<body>
+  <div id="container"></div>
+  <script src="./index.js"></script>
+  <script>
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const stage = new Konva.Stage({
+      container: 'container',
+      width,
+      height,
+    })
+
+    const layer = new Konva.Layer();
+    stage.add(layer);
+
+    // 宽度
+    const WALL_PADDING = 18;
+    // 控制点宽度
+    const pointRadius = 12;
+
+    renderWallLine();
+
+    function renderWallLine() {
+      // 修改线段数量
+      const lineLen = 2;
+      // 控制点数组
+      const controlPointArr = [];
+      let startX = Math.random() * width;
+      let startY = Math.random() * height;
+      let endX = Math.random() * width;
+      let endY = Math.random() * height;
+
+      // 开始控制点，相当于链表的第一个
+      let controlStart = new Konva.Circle({
+        x: startX,
+        y: startY,
+        fill: 'red',
+        radius: 6,
+        strokeWidth: 6,
+        stroke: '#3274F7',
+        draggable: true,
+      });
+      controlPointArr.push(controlStart);
+      
+      for (let i = 0; i < lineLen; i++) {
+        let controlEnd = new Konva.Circle({
+          x: endX,
+          y: endY,
+          fill: 'white',
+          radius: 6,
+          strokeWidth: 6,
+          stroke: '#3274F7',
+          draggable: true,
+        })
+        controlPointArr.push(controlEnd);
+        controlStart.setAttr('next', controlEnd);
+        controlEnd.setAttr('pre', controlStart);
+
+        const points = [
+          controlStart.x(),
+          controlStart.y() - pointRadius,
+          controlEnd.x(),
+          controlEnd.y() - pointRadius,
+          controlEnd.x() - WALL_PADDING,
+          controlEnd.y() + WALL_PADDING - pointRadius,
+          controlStart.x() + WALL_PADDING,
+          controlStart.y() + WALL_PADDING - pointRadius,
+        ]
+        // 绘制墙线段
+        const wallLine = new Konva.Line({
+          points,
+          stroke: 'black',
+          fill: 'white',
+          strokeWidth: 1,
+          name: 'wall-line',
+          closed: true,
+        });
+        controlEnd.setAttr('wall-line', wallLine);
+        layer.add(wallLine);
+
+
+        // 保存控制点和拖动事件
+        const p = controlStart;
+        const q = controlEnd;
+        controlStart.on('dragmove', () => {
+          updateLine(wallLine, p)
+        });
+        controlEnd.on('dragmove', () => {
+          updateLine(wallLine, q)
+        });
+
+        startX = endX;
+        startY = endY;
+
+        controlStart = controlEnd;
+
+        endX = Math.random() * width;
+        endY = Math.random() * height;
+      }
+
+      layer.add(...controlPointArr);
+    }
+  </script>
+</body>
+</html>

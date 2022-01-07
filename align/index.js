@@ -142,7 +142,7 @@ function initDrag(stage, layer) {
         ctx.strokeShape(this);
       },
       stroke: 'black',
-      strokeWidth: 0.1,
+      strokeWidth: 1,
       id: 'topLine',
     })
     const topDistance = new Konva.Text({
@@ -214,13 +214,13 @@ function initDrag(stage, layer) {
 
     lineGroup.add(
       topLine,
-      topDistance,
-      bottomLine,
-      bottomDistance,
-      leftLine,
-      leftDistance,
-      rightLine,
-      rightDistance,
+      // topDistance,
+      // bottomLine,
+      // bottomDistance,
+      // leftLine,
+      // leftDistance,
+      // rightLine,
+      // rightDistance,
     );
 
     layer.add(lineGroup);
