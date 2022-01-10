@@ -88,26 +88,21 @@ function updateLine(line, point, count = 1) {
     // 最终的角平分线斜率
     let preNextCenterK = tempK1;
 
-    console.log(`y=${pointPreK}x+${pointPreB}`);
-    console.log(`y=${pointNextK}x+${pointNextB}`);
-    console.log(tempK1, tempB1, tempK2, tempB2);
-
-    // y = tempK1·x + tempB1;
-    // y = tempK2·x + tempB2;
-
     const preNextK = (pointNextY - pointPreY) / (pointNextX - pointPreX);
     const preNextB = pointNextY - preNextK * pointNextX;
 
     const [tempX1, tempY1] = calculatePoint(preNextK, preNextB, tempK1, tempB1);
     const [tempX2, tempY2] = calculatePoint(preNextK, preNextB, tempK2, tempB2);
 
-    const tempPreDistance = Math.sqrt((pointPreX - tempX1)**2 + (pointPreY - tempY1)**2);
-    const tempNextDistance = Math.sqrt((pointNextX - tempX1)**2 + (pointNextY - tempY1)**2);
+    const tempPreDistance1 = Math.sqrt((pointPreX - tempX1)**2 + (pointPreY - tempY1)**2);
+    const tempNextDistance1 = Math.sqrt((pointNextX - tempX1)**2 + (pointNextY - tempY1)**2);
+    const tempPreDistance2 = Math.sqrt((pointPreX - tempX2)**2 + (pointPreY - tempY2)**2);
+    const tempNextDistance2 = Math.sqrt((pointNextX - tempX2)**2 + (pointNextY - tempY2)**2);
 
-    if (tempPreDistance + tempNextDistance > Math.sqrt((pointPreX - pointNextX)**2) + (pointPreY - pointNextY)**2) {
+    if (tempPreDistance1 + tempNextDistance1 > tempPreDistance2 + tempNextDistance2) {
       preNextCenterK = tempK2;
     }
-    console.log(preNextCenterK);
+
     // 最终的角平分线在 y 轴的坐标
     const preNextCenterB = pointY - preNextCenterK * pointX;
 
@@ -138,6 +133,10 @@ function updateLine(line, point, count = 1) {
       nextX4, nextY4,
     ])
 
+  } else if (pointNext && !pointPre) {
+    updateLine(pointNext.getAttr('wall-line'), pointNext, count++);
+  } else if (!pointNext && pointPre) {
+    updateLine(pointPre.getAttr('wall-line'), pointPre, count++);
   }
   // {
   //   // 计算 4 个交点的坐标
