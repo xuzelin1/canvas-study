@@ -2,6 +2,8 @@
 //   1: 1,
 // }
 
+let COUNT = 0;
+let group;
 
 /**
  * 更新墙的划线
@@ -16,7 +18,7 @@
  * @returns 
  */
 function updateLine(line, point, count = 1) {
-  if (count > 3) return;
+  if (count > 2) return;
   // 获取上下的控制点
   const pointPre = point.getAttr('pre');
   const pointNext = point.getAttr('next')
@@ -75,6 +77,134 @@ function updateLine(line, point, count = 1) {
   const vPointNextB2 = pointY - vPointNextK * pointX;
 
   if (pointPre && pointNext) { // 第二种情况，存在 pre 和 next
+    // 先更新 next 跟 pre
+    updateLine(pointPre.getAttr('wall-line'), pointPre, count+1);
+    updateLine(pointNext.getAttr('wall-line'), pointNext, count+1);
+
+    const { preNextCenterK, preNextCenterB } = getAngleBisector(
+      pointX, pointY,
+      pointPreX, pointPreY,
+      pointNextX, pointNextY,
+      pointPreK, pointNextK,
+    );
+
+    // 获取当前控制点与 pre 中间的线的坐标
+    const [ preX2, preY2 ] = calculatePoint(pointPreK, pointPreB1, preNextCenterK, preNextCenterB);
+    const [ preX3, preY3 ] = calculatePoint(pointPreK, pointPreB2, preNextCenterK, preNextCenterB);
+    const [ preX1, preY1 ] = calculatePoint(pointPreK, pointPreB1, vPointPreK, vPointPreB1);
+    const [ preX4, preY4 ] = calculatePoint(pointPreK, pointPreB2, vPointPreK, vPointPreB1);
+
+    // const linePoints = [];
+    const preLine = pointPre.getAttr('wall-line');
+    if (preLine) {
+      console.log(preLine);
+      const linePoints = preLine?.points() || [];
+      // console.log(point.id());
+      // console.log(nextLine, pointNext.getAttr('wall-line'));
+      // console.log(nextLine.points(), pointNext.getAttr('wall-line').points());
+      if (pointPre.getAttr('pre') && linePoints.length !== 0 && count === 1) {
+        const [
+          preX1_1, preY1_1,
+          preX2_1, preY2_1, 
+          preX3_1, preY3_1,
+          preX4_1, preY4_1
+        ] = linePoints;
+        // 修改控制点与 pre 中间的线
+        preLine.points([
+          preX1, preY1,
+          preX2, preY2,
+          preX3, preY3,
+          preX4, preY4,
+        ])
+      } else {
+        preLine.points([
+          preX1, preY1,
+          preX2, preY2,
+          preX3, preY3,
+          preX4, preY4,
+        ])
+      }
+    }
+
+    // 获取当前控制点与 next 中间的线的坐标
+    const [ nextX2, nextY2 ] = calculatePoint(pointNextK, pointNextB1, preNextCenterK, preNextCenterB);
+    const [ nextX3, nextY3 ] = calculatePoint(pointNextK, pointNextB2, preNextCenterK, preNextCenterB);
+    const [ nextX1, nextY1 ] = calculatePoint(pointNextK, pointNextB1, vPointNextK, vPointNextB1);
+    const [ nextX4, nextY4 ] = calculatePoint(pointNextK, pointNextB2, vPointNextK, vPointNextB1);
+
+    const nextLine = pointNext.getAttr('wall-line');
+    // const nextLinePoints = [];
+    const nextLinePoints = nextLine.points();
+    console.log(point.id());
+    console.log(nextLine, pointNext.getAttr('wall-line'));
+    console.log(nextLine.points(), pointNext.getAttr('wall-line').points());
+    if (pointNext.getAttr('next') && nextLinePoints.length !== 0 && count === 1) {
+      const [
+        nextX1_1, nextY1_1,
+        nextX2_1, nextY2_1,
+        nextX3_1, nextY3_1,
+        nextX4_1, nextY4_1,
+      ] = nextLinePoints;
+      // 修改线
+      nextLine.points([
+        nextX1, nextY1,
+        nextX2, nextY2,
+        nextX3, nextY3,
+        nextX4, nextY4,
+
+        // nextX3, nextY3,
+        // nextX2_1, nextY2_1,
+        // nextX3_1, nextY3_1,
+        // nextX2, nextY2,
+      ])
+    } else {
+      nextLine.points([
+        nextX1, nextY1,
+        nextX2, nextY2,
+        nextX3, nextY3,
+        nextX4, nextY4,
+      ])
+    }
+    // console.log('nextLinePoints', nextLinePoints);
+  } else if (pointNext && !pointPre) {
+    const nextLine = pointNext.getAttr('wall-line');
+    updateLine(nextLine, pointNext, count+1);
+  } else if (!pointNext && pointPre) {
+    const preLine = pointPre.getAttr('wall-line');
+    updateLine(preLine, pointPre, count+1);
+  }
+
+  layer.batchDraw();
+}
+
+/**
+ * 计算两条直线之间的交点
+ * @param {*} k1 - 直线 1 斜率
+ * @param {*} b1 - 直线 1 与 y 轴交点
+ * @param {*} k2 - 直线 2 斜率
+ * @param {*} b2 - 直线 2 与 y 轴交点
+ * @returns 
+ */
+function calculatePoint(k1, b1, k2, b2) {
+  const x = (b2 - b1) / (k1 - k2);
+  const y = k1 * x + b1;
+
+  return [x, y];
+}
+
+/**
+ * 计算出来三个节点的夹角的函数 K 和 B
+ * @param {*} pointX 公共点 x
+ * @param {*} pointY 公共点 y
+ * @param {*} pointPreX 前置节点 x
+ * @param {*} pointPreY 前置节点 y
+ * @param {*} pointNextX 后置节点 x
+ * @param {*} pointNextY 后置节点 y
+ * @param {*} pointPreK 公共点与前置节点斜率
+ * @param {*} pointNextK 公共点与后置节点斜率
+ * @returns 
+ */
+function getAngleBisector(pointX, pointY, pointPreX, pointPreY, pointNextX, pointNextY, pointPreK, pointNextK) {
     // 获取夹角的函数式: y = preNextCenterK * x + preNextCenterB
     const th1 = Math.atan(pointPreK) / Math.PI * 180;
     const th2 = Math.atan(pointNextK) / Math.PI * 180;
@@ -99,6 +229,7 @@ function updateLine(line, point, count = 1) {
     const tempPreDistance2 = Math.sqrt((pointPreX - tempX2)**2 + (pointPreY - tempY2)**2);
     const tempNextDistance2 = Math.sqrt((pointNextX - tempX2)**2 + (pointNextY - tempY2)**2);
 
+    // 判断选取哪个角平分线
     if (tempPreDistance1 + tempNextDistance1 > tempPreDistance2 + tempNextDistance2) {
       preNextCenterK = tempK2;
     }
@@ -106,79 +237,8 @@ function updateLine(line, point, count = 1) {
     // 最终的角平分线在 y 轴的坐标
     const preNextCenterB = pointY - preNextCenterK * pointX;
 
-    // 获取当前控制点与 pre 中间的线的坐标
-    const [ preX2, preY2 ] = calculatePoint(pointPreK, pointPreB1, preNextCenterK, preNextCenterB);
-    const [ preX3, preY3 ] = calculatePoint(pointPreK, pointPreB2, preNextCenterK, preNextCenterB);
-    const [ preX1, preY1 ] = calculatePoint(pointPreK, pointPreB1, vPointPreK, vPointPreB1);
-    const [ preX4, preY4 ] = calculatePoint(pointPreK, pointPreB2, vPointPreK, vPointPreB1);
-    // 修改控制点与 pre 中间的线
-    line.points([
-      preX1, preY1,
-      preX2, preY2,
-      preX3, preY3,
-      preX4, preY4,
-    ])
-
-    // 获取当前控制点与 next 中间的线的坐标
-    const [ nextX2, nextY2 ] = calculatePoint(pointNextK, pointNextB1, preNextCenterK, preNextCenterB);
-    const [ nextX3, nextY3 ] = calculatePoint(pointNextK, pointNextB2, preNextCenterK, preNextCenterB);
-    const [ nextX1, nextY1 ] = calculatePoint(pointNextK, pointNextB1, vPointNextK, vPointNextB1);
-    const [ nextX4, nextY4 ] = calculatePoint(pointNextK, pointNextB2, vPointNextK, vPointNextB1);
-
-    // 修改线
-    pointNext.getAttr('wall-line').points([
-      nextX1, nextY1,
-      nextX2, nextY2,
-      nextX3, nextY3,
-      nextX4, nextY4,
-    ])
-
-  } else if (pointNext && !pointPre) {
-    updateLine(pointNext.getAttr('wall-line'), pointNext, count++);
-  } else if (!pointNext && pointPre) {
-    updateLine(pointPre.getAttr('wall-line'), pointPre, count++);
-  }
-  // {
-  //   // 计算 4 个交点的坐标
-  //   console.log(`y = ${pointPreK}x + ${pointPreB1}`);
-  //   console.log(`y = ${pointPreK}x + ${pointPreB2}`);
-  //   console.log(`y = ${vPointPreK}x + ${vPointPreB1}`);
-  //   console.log(`y = ${vPointPreK}x + ${vPointPreB2}`);
-
-  //   const [ x1, y1 ] = calculatePoint(pointPreK, pointPreB1, vPointPreK, vPointPreB1);
-  //   const [ x2, y2 ] = calculatePoint(pointPreK, pointPreB1, vPointPreK, vPointPreB2);
-  //   const [ x3, y3 ] = calculatePoint(pointPreK, pointPreB2, vPointPreK, vPointPreB2);
-  //   const [ x4, y4 ] = calculatePoint(pointPreK, pointPreB2, vPointPreK, vPointPreB1);
-
-  //   line.points([
-  //     x1, y1,
-  //     x2, y2,
-  //     x3, y3,
-  //     x4, y4,
-  //   ])
-
-  //   console.log(
-  //     x1, y1,
-  //     x2, y2,
-  //     x3, y3,
-  //     x4, y4,
-  //   );
-  // }
-
-  layer.batchDraw();
-}
-
-/**
- * 计算两条直线之间的交点
- * @param {*} k1 - 直线 1 斜率
- * @param {*} b1 - 直线 1 与 y 轴交点
- * @param {*} k2 - 直线 2 斜率
- * @param {*} b2 - 直线 2 与 y 轴交点
- * @returns 
- */
-function calculatePoint(k1, b1, k2, b2) {
-  const x = (b2 - b1) / (k1 - k2);
-  const y = k1 * x + b1;
-
-  return [x, y];
+    return {
+      preNextCenterK,
+      preNextCenterB,
+    }
 }

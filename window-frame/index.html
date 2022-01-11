@@ -24,11 +24,15 @@
     stage.add(layer);
 
     // 宽度
-    const WALL_PADDING = 18;
+    const WALL_PADDING = 36;
     // 控制点宽度
     const pointRadius = 12;
 
     renderWallLine();
+
+    stage.on('click', (e) => {
+      console.log('e', e.evt.offsetX, e.evt.offsetY);
+    })
 
     function renderWallLine() {
       // 修改线段数量
@@ -49,6 +53,7 @@
         strokeWidth: 6,
         stroke: '#3274F7',
         draggable: true,
+        id: -1,
       });
       controlPointArr.push(controlStart);
       
@@ -61,24 +66,25 @@
           strokeWidth: 6,
           stroke: '#3274F7',
           draggable: true,
+          id: i,
         })
         controlPointArr.push(controlEnd);
         controlStart.setAttr('next', controlEnd);
         controlEnd.setAttr('pre', controlStart);
 
-        const points = [
-          controlStart.x(),
-          controlStart.y() - pointRadius,
-          controlEnd.x(),
-          controlEnd.y() - pointRadius,
-          controlEnd.x() - WALL_PADDING,
-          controlEnd.y() + WALL_PADDING - pointRadius,
-          controlStart.x() + WALL_PADDING,
-          controlStart.y() + WALL_PADDING - pointRadius,
-        ]
+        // const points = [
+        //   controlStart.x(),
+        //   controlStart.y() - pointRadius,
+        //   controlEnd.x(),
+        //   controlEnd.y() - pointRadius,
+        //   controlEnd.x() - WALL_PADDING,
+        //   controlEnd.y() + WALL_PADDING - pointRadius,
+        //   controlStart.x() + WALL_PADDING,
+        //   controlStart.y() + WALL_PADDING - pointRadius,
+        // ]
         // 绘制墙线段
         const wallLine = new Konva.Line({
-          points,
+          // points,
           stroke: 'black',
           fill: 'white',
           strokeWidth: 1,
@@ -86,6 +92,7 @@
           closed: true,
         });
         controlEnd.setAttr('wall-line', wallLine);
+        updateLine(wallLine, controlEnd);
         layer.add(wallLine);
 
 
