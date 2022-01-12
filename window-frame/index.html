@@ -36,7 +36,7 @@
 
     function renderWallLine() {
       // 修改线段数量
-      const lineLen = 4;
+      const lineLen = 6;
       // 控制点数组
       const controlPointArr = [];
       let startX = Math.random() * width;
@@ -44,6 +44,7 @@
       let endX = Math.random() * width;
       let endY = Math.random() * height;
 
+      
       // 开始控制点，相当于链表的第一个
       let controlStart = new Konva.Circle({
         x: startX,
@@ -56,7 +57,7 @@
         id: -1,
       });
       controlPointArr.push(controlStart);
-      
+      let head = controlStart;
       for (let i = 0; i < lineLen; i++) {
         let controlEnd = new Konva.Circle({
           x: endX,
@@ -92,7 +93,7 @@
           closed: true,
         });
         controlEnd.setAttr('wall-line', wallLine);
-        updateLine(wallLine, controlEnd);
+        updateLine(controlEnd);
         layer.add(wallLine);
 
 
@@ -100,10 +101,10 @@
         const p = controlStart;
         const q = controlEnd;
         controlStart.on('dragmove', () => {
-          updateLine(wallLine, p)
+          updateLine(p)
         });
         controlEnd.on('dragmove', () => {
-          updateLine(wallLine, q)
+          updateLine(q)
         });
 
         startX = endX;
@@ -114,6 +115,8 @@
         endX = Math.random() * width;
         endY = Math.random() * height;
       }
+      // controlStart.setAttr('pre', head);
+      // head.setAttr('next', controlStart);
 
       layer.add(...controlPointArr);
     }
