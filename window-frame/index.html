@@ -34,9 +34,9 @@
       console.log('e', e.evt.offsetX, e.evt.offsetY);
     })
 
-    function renderWallLine() {
+    function renderWallLine(circle) {
       // 修改线段数量
-      const lineLen = 6;
+      const lineLen = 4;
       // 控制点数组
       const controlPointArr = [];
       let startX = Math.random() * width;
@@ -73,16 +73,6 @@
         controlStart.setAttr('next', controlEnd);
         controlEnd.setAttr('pre', controlStart);
 
-        // const points = [
-        //   controlStart.x(),
-        //   controlStart.y() - pointRadius,
-        //   controlEnd.x(),
-        //   controlEnd.y() - pointRadius,
-        //   controlEnd.x() - WALL_PADDING,
-        //   controlEnd.y() + WALL_PADDING - pointRadius,
-        //   controlStart.x() + WALL_PADDING,
-        //   controlStart.y() + WALL_PADDING - pointRadius,
-        // ]
         // 绘制墙线段
         const wallLine = new Konva.Line({
           // points,
@@ -115,9 +105,22 @@
         endX = Math.random() * width;
         endY = Math.random() * height;
       }
-      // controlStart.setAttr('pre', head);
-      // head.setAttr('next', controlStart);
 
+      if (circle) {
+        // 绘制墙线段
+        const wallLine = new Konva.Line({
+          stroke: 'black',
+          fill: 'white',
+          strokeWidth: 1,
+          name: 'wall-line',
+          closed: true,
+        });
+        head.setAttr('wall-line', wallLine);
+        layer.add(wallLine);
+        controlStart.setAttr('next', head);
+        head.setAttr('pre', controlStart);
+        updateLine(head);
+      }
       layer.add(...controlPointArr);
     }
   </script>

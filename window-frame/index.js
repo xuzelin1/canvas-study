@@ -1,10 +1,3 @@
-// const CONTROL_POINT_TYPE = {
-//   1: 1,
-// }
-
-let COUNT = 0;
-let group;
-
 /**
  * 更新墙的划线
  * 一个控制点的情况有三种
