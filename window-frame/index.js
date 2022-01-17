@@ -97,11 +97,8 @@ function updateLine(point, count = 1, type = 'pre') {
         preX3_1, preY3_1,
         preX4_1, preY4_1
       ] = preLinePoints;
-      // console.log('id = ', point.id(), preLinePoints);
-      // console.log('id = ', point.id(), [preX2, preY2, preX3, preY3]);
       if (pointPre.getAttr('wall-line') && preLinePoints.length !== 0 && count === 1) {
         // 修改控制点与 pre 中间的线
-        // console.log('pre-line 第一种修改');
         preLine.points([
           preX2, preY2,
           preX2_1, preY2_1,
@@ -109,7 +106,6 @@ function updateLine(point, count = 1, type = 'pre') {
           preX3, preY3,
         ])
       } else if (pointPre.getAttr('wall-line') && preLinePoints.length !== 0 && count === 2) {
-        // console.log('pre-line 第二种修改', type);
         if (type === 'pre') {
           preLine.points([
             preX2, preY2,
@@ -126,7 +122,6 @@ function updateLine(point, count = 1, type = 'pre') {
           ])
         }
       } else {
-        // console.log('pre-line 第三种修改');
         preLine.points([
           preX1, preY1,
           preX2, preY2,
@@ -134,7 +129,6 @@ function updateLine(point, count = 1, type = 'pre') {
           preX4, preY4,
         ])
       }
-      // console.log('pre-line修改完结果 =', preLine.points());
     }
 
     // 获取当前控制点与 next 中间的线的坐标
@@ -152,11 +146,8 @@ function updateLine(point, count = 1, type = 'pre') {
         nextX3_1, nextY3_1,
         nextX4_1, nextY4_1,
       ] = nextLinePoints;
-      // console.log('id = ', point.id(), nextLinePoints);
-      // console.log('id = ', point.id(), [nextX2, nextY2, nextX3, nextY3]);
       if (pointNext.getAttr('next') && nextLinePoints.length !== 0 && count === 1) {
         // 修改线
-        // console.log('next-line 第一种修改', type);
         nextLine.points([
           nextX1_1, nextY1_1,
           nextX2, nextY2,
@@ -164,7 +155,6 @@ function updateLine(point, count = 1, type = 'pre') {
           nextX4_1, nextY4_1,
         ])
       } else if (pointNext.getAttr('next') && nextLinePoints.length !== 0 && count === 2) {
-        // console.log('next-line 第二种修改', type);
         if (type === 'next') {
           nextLine.points([
             nextX1_1, nextY1_1,
@@ -181,7 +171,6 @@ function updateLine(point, count = 1, type = 'pre') {
           ])
         }
       } else {
-        // console.log('next-line 第三种修改', type);
         nextLine.points([
           nextX1, nextY1,
           nextX2, nextY2,
@@ -189,7 +178,6 @@ function updateLine(point, count = 1, type = 'pre') {
           nextX4, nextY4,
         ])
       }
-      // console.log('next-line修改完结果 =', preLine.points());
     }
   } else if (pointNext && !pointPre) {
     updateLine(pointNext, count+1);
@@ -198,11 +186,6 @@ function updateLine(point, count = 1, type = 'pre') {
   }
 
   layer.batchDraw();
-  // count === 1 && console.log(`
-  // ================================================
-  // -----------                              -------
-  // ================================================
-  // `)
 }
 
 /**
