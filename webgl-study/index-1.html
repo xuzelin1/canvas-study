@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script type="notjs">
+  <script  id="vertex-shader-2d" type="notjs">
   #version 300 es
    
    // an attribute is an input (in) to a vertex shader.
@@ -20,7 +20,7 @@
      gl_Position = a_position;
    }
   </script>
-  <script type="notjs">
+  <script id="fragment-shader-2d" type="notjs">
     
   #version 300 es
     
@@ -50,7 +50,34 @@
       return;
     }
 
-
+    var vertexShaderSource = `#version 300 es
+      // an attribute is an input (in) to a vertex shader.
+      // It will receive data from a buffer
+      in vec4 a_position;
+      
+      // all shaders have a main function
+      void main() {
+      
+        // gl_Position is a special variable a vertex shader
+        // is responsible for setting
+        gl_Position = a_position;
+      }
+      `;
+      
+      var fragmentShaderSource = `#version 300 es
+      
+      // fragment shaders don't have a default precision so we need
+      // to pick one. highp is a good default. It means "high precision"
+      precision highp float;
+      
+      // we need to declare an output for the fragment shader
+      out vec4 outColor;
+      
+      void main() {
+        // Just set the output to a constant reddish-purple
+        outColor = vec4(1, 0, 0.5, 1);
+      }
+      `;
     // 创建点着色器
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
     // 创建片段着色器
@@ -88,7 +115,7 @@
     gl.vertexAttribPointer(
     positionAttributeLocation, size, type, normalize, stride, offset)
 
-    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+    // webglUtils.resizeCanvasToDisplaySize(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
 
