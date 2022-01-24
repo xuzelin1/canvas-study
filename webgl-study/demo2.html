@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./index.js"></script>
+</head>
+<body>
+  <canvas id="webgl"></canvas>
+</body>
+<script>
+
+  const VERTEX_SHADER_SOURCE = `
+    void main() {
+      gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+      gl_PointSize = 10.0;
+    }
+  `;
+
+  const FRAGMENT_SHADER_SOURCE = `
+    void main() {
+      gl_FragColor = vec4(.0, 0.0, 0.0, 1.0);
+    }
+  `;
+
+  function main() {
+    const canvas = document.getElementById('webgl');
+    const gl = canvas.getContext("webgl");
+    if (!gl) {
+      return;
+    }
+
+    initProgram(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
+    // gl.drawArrays(gl.POINTS, 0, 1);
+
+    const points = new Float32Array([
+      -1, -1,
+      0, 1,
+      1, -1,
+    ]);
+
+    const bufferId = gl.createBuffer();
+  }
+  main();
+</script>
+</html>
